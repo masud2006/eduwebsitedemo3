@@ -44,9 +44,9 @@ body {
 }
 
 .logo-img {
-    width: 150px;
-    height: 150px;
-    border-radius: 8px;
+    width: 50px;
+    height: 50px;
+    border-radius: 15px;
     object-fit: cover;
 }
 
@@ -763,4 +763,5 @@ footer {
     gap: 5px;
     font-weight: 500;
 }
+
 
