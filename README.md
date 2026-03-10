@@ -1,4 +1,4 @@
-🎓 অর্ক একাডেমি – Modern Coaching & EdTech Website
+🎓 ওমেগা একাডেমিক এন্ড এডমিশন কেয়ার – Modern Coaching & EdTech Website
 
 A clean, modern, and highly responsive educational coaching website designed to help coaching centers and EdTech platforms attract more students, showcase success stories, and manage course promotion effectively.
 
