@@ -139,48 +139,112 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ========== SMOOTH SCROLL FOR ALL ANCHOR LINKS (optional, already handled but fallback) ==========
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    // ========== ENROLL MODAL (Payment Demo) ==========
+    const modal = document.getElementById('enrollModal');
+    const closeModal = document.querySelector('.close-modal');
+    const enrollBtns = document.querySelectorAll('.enroll-btn');
+    const enrollCourseSelect = document.getElementById('enrollCourse');
+    const enrollForm = document.getElementById('enrollForm');
+    const enrollMessage = document.getElementById('enrollFormMessage');
+
+    // Open modal and set course title if available
+    enrollBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const courseTitle = this.getAttribute('data-course-title');
+            if (courseTitle && enrollCourseSelect) {
+                // Try to select matching option (simple contains)
+                const options = enrollCourseSelect.options;
+                for (let i = 0; i < options.length; i++) {
+                    if (options[i].text.includes(courseTitle) || courseTitle.includes(options[i].text)) {
+                        enrollCourseSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+            modal.style.display = 'flex';
+        });
+    });
+
+    // Close modal
+    if (closeModal) {
+        closeModal.addEventListener('click', function() {
+            modal.style.display = 'none';
+            if (enrollForm) enrollForm.reset();
+            if (enrollMessage) enrollMessage.textContent = '';
+        });
+    }
+
+    // Click outside to close
+    window.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+            if (enrollForm) enrollForm.reset();
+            if (enrollMessage) enrollMessage.textContent = '';
+        }
+    });
+
+    // Handle enroll form submission (demo)
+    if (enrollForm) {
+        enrollForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Simple validation: check required fields (HTML5 handles but we add custom)
+            const name = document.getElementById('enrollName').value.trim();
+            const phone = document.getElementById('enrollPhone').value.trim();
+            const email = document.getElementById('enrollEmail').value.trim();
+            const gender = document.querySelector('input[name="gender"]:checked');
+            const course = enrollCourseSelect.value;
+            const address = document.getElementById('enrollAddress').value.trim();
+            const batch = document.getElementById('enrollBatch').value;
+            const payment = document.querySelector('input[name="payment"]:checked');
+
+            if (!name || !phone || !email || !gender || !course || !address || !batch || !payment) {
+                enrollMessage.textContent = 'দয়া করে সকল তথ্য পূরণ করুন।';
+                enrollMessage.style.color = '#b22222';
+                return;
+            }
+
+            // Basic phone validation (optional)
+            const phoneRegex = /^01[3-9][0-9]{8}$/;
+            if (!phoneRegex.test(phone)) {
+                enrollMessage.textContent = 'সঠিক মোবাইল নম্বর দিন (যেমন: 01712345678)';
+                enrollMessage.style.color = '#b22222';
+                return;
+            }
+
+            // Demo success message
+            enrollMessage.textContent = 'এটি একটি ডেমো পেমেন্ট গেটওয়ে দেখানো হচ্ছে। কোনো টাকা কাটা হয়নি। ধন্যবাদ!';
+            enrollMessage.style.color = '#1e7e34';
+
+            // Optionally reset form after a delay
+            setTimeout(() => {
+                enrollForm.reset();
+                enrollMessage.textContent = '';
+                modal.style.display = 'none';
+            }, 3000);
+        });
+    }
+
+    // ========== SMOOTH SCROLL FOR ALL ANCHOR LINKS ==========
+    document.querySelectorAll('a[href^="#"]:not(.enroll-btn):not(.float-wa):not(.float-call)').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
-            // Prevent default if it's not a nav link (already handled) but to avoid double behavior
-            if (this.classList.contains('nav-link') || this.classList.contains('cta-btn') || this.classList.contains('enroll-btn')) {
-                // Already handled; but we can let it be.
-                // For enroll buttons, they point to #demo-booking
-                const href = this.getAttribute('href');
-                if (href === '#demo-booking') {
-                    e.preventDefault();
-                    const target = document.getElementById('demo-booking');
-                    if (target) {
-                        window.scrollTo({ top: target.offsetTop - 80, behavior: 'smooth' });
-                    }
-                }
-                // For nav links, we already did above; but to avoid conflict:
-                if (this.classList.contains('nav-link')) {
-                    e.preventDefault(); // handled already but we have custom handler, so prevent double
-                }
-            } else {
-                // For any other anchor with hash
-                const href = this.getAttribute('href');
-                if (href && href.startsWith('#') && href.length > 1) {
-                    e.preventDefault();
-                    const target = document.getElementById(href.substring(1));
-                    if (target) {
-                        window.scrollTo({ top: target.offsetTop - 80, behavior: 'smooth' });
-                    }
-                }
+            const href = this.getAttribute('href');
+            if (href === '#') return;
+            const target = document.getElementById(href.substring(1));
+            if (target) {
+                e.preventDefault();
+                window.scrollTo({ top: target.offsetTop - 80, behavior: 'smooth' });
             }
         });
     });
 
     // ========== BASIC ANIMATION TRIGGERS (simple fade on scroll) ==========
-    // Use Intersection Observer to add a class when elements come into view
     const animatedElements = document.querySelectorAll('.founder-card, .course-card, .feature-card, .story-card, .branch-card');
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.style.opacity = '1';
                 entry.target.style.transform = 'translateY(0)';
-                // we could add a class, but they already have base style; we set initial to 0.9? simpler: just ensure
             }
         });
     }, { threshold: 0.1 });
@@ -191,7 +255,4 @@ document.addEventListener('DOMContentLoaded', function() {
         el.style.transition = 'opacity 0.6s, transform 0.6s';
         observer.observe(el);
     });
-
-    // Fix for cards that may be hidden by filter then shown: they need to re-appear. Observer re-triggers? Fine.
-    // Also for the slider active content, we already animate with CSS.
 });
